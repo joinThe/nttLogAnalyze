@@ -12,8 +12,19 @@ public class Step {
     private String PointOfError;
     private String MessageText;
     private String Status;
+
     private Date dateTime;
 
+    public Step(ArrayList<String> list) {
+        Number = list.get(0);
+        Time = list.get(1);
+        Date = list.get(2);
+        CompName = list.get(3);
+        UserName = list.get(4);
+        PointOfError = list.get(5);
+        MessageText = list.get(6);
+        Status = list.get(7);
+    }
 
     public String getNumber() {
         return Number;
@@ -67,17 +78,6 @@ public class Step {
                 ", MessageText='" + MessageText + '\'' +
                 ", Status='" + Status + '\'' +
                 '}';
-    }
-
-    public Step(ArrayList<String> list) {
-        Number = list.get(0);
-        Time = list.get(1);
-        Date = list.get(2);
-        CompName = list.get(3);
-        UserName = list.get(4);
-        PointOfError = list.get(5);
-        MessageText = list.get(6);
-        Status = list.get(7);
     }
 
 
