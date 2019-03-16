@@ -7,6 +7,8 @@ import java.util.Date;
 
 public class StepAnalyze {
 
+    int errors=0;
+
     private long tStart;
     private long tStop;
     private long tCrash;
@@ -18,14 +20,23 @@ public class StepAnalyze {
     private boolean stop;
     private boolean crash;
 
-    private String equipmentMessage = "- ПП - запущен";
+    long workTime = 0;
+    long repairTime = 0;
+    int crashCounter = 0;
+
+    public String equipmentMessage = "- ПП - запущен";
     private String startMessage = "ON";
-    private String stopMessage;
-    private String crash1 = "- сработал датчик";
+    private String stopMessage = "OFF";
+    private String crash1 = "- сработа";
+    private String crash2 = "- Сработа";
+
+    private String stepMessage;
+    private String stepStatus;
+
 
     ArrayList<excelLine> excelLines;
     ArrayList<Step> stepsList;
-   private SimpleDateFormat returnDateFormat;
+    private SimpleDateFormat returnDateFormat;
 
     public ArrayList<excelLine> getExcelLines() {
         return excelLines;
@@ -38,57 +49,66 @@ public class StepAnalyze {
     }
 
     public void analyze() throws ParseException {
-        long workTime = 0;
-        long repairTime = 0;
-        int crashCounter = 0;
+
         for ( Step st : stepsList ) {
             Date date = st.getDateTime();
-            String message = st.getMessageText();
-            String status = st.getStatus();
-            if (date == null)
-                continue;
-            int getDay = Integer.parseInt(returnDateFormat.format(date));
-            if (thisDay == 0)
-                thisDay = getDay;
-            nextDay = getDay;
-            if (thisDay == nextDay) {
-                if (message.contains(equipmentMessage)) {
-                    if (status.contains(startMessage)) {
+            if (date != null) {
+                int getDay = Integer.parseInt(returnDateFormat.format(date));
+                stepMessage = st.getMessageText();
+                stepStatus = st.getStatus();
+                if (thisDay == 0)
+                    thisDay = getDay;
+                nextDay = getDay;
+                if (thisDay == nextDay) {
+                    if (isStartMessage()) {
                         tStart = date.getTime();
                         start = true;
                         stop = false;
                         if (crash)
                             repairTime += tStart - tCrash;
                         crash = false;
-                    } else {
+                    } else if (isStopMessage()) {
                         tStop = date.getTime();
                         stop = true;
                         start = false;
-                    }
-
-                    if (!start&&stop)//todo reverse
-                        workTime += tStop - tStart;
-                } else if (message.contains(crash1))
-                    if (status.contains("+")) {
+                        if (!start&&stop)
+                            workTime += tStop - tStart;
+                    } else if (isCrashMessage()) {
                         tCrash = date.getTime();
                         crash = true;
                         crashCounter++;
                     }
-            } else {
-                if (start) {
-                    tStop = beginThisDay(date).getTime();
-                    workTime += tStop - tStart;
-                    tStart = beginThisDay(date).getTime();
-                }
-                crash = false;
-                excelLines.add(new excelLine(thisDay, workTime, crashCounter, repairTime));
-                thisDay = nextDay;
-                workTime = 0;
-                crashCounter = 0;
-            }
-        }
+                } else {
+                    if (isStartMessage()) {
+                        tStart = date.getTime();
+                        start = true;
+                        stop = false;
+                        excelLines.add(new excelLine(thisDay, workTime, crashCounter, repairTime, date));
+                        thisDay = nextDay;
+                        resetCounters();
+                        continue;
+                    }
+                    if (start) {
+                        tStop = beginThisDay(date).getTime();
+                        workTime += tStop - tStart;
+                        tStart = tStop;
+                    }
+                    crash = false;
+                    excelLines.add(new excelLine(thisDay, workTime, crashCounter, repairTime, date));
+                    thisDay = nextDay;
+                    resetCounters();
+                    if (isStopMessage()) {
+                        tStop = date.getTime();
+                        workTime += tStop - tStart;
 
-        System.out.println(crashCounter);
+                    }
+
+                }
+            }
+
+            // System.out.println(crashCounter);
+        }
+        System.out.println("Crash "+errors);
     }
 
     private Date beginThisDay(Date date) throws ParseException {
@@ -96,9 +116,35 @@ public class StepAnalyze {
         return ret.parse(ret.format(date));
     }
 
-    private boolean isCrashMessage(String s) {
+    private boolean isCrashMessage() {
+        if (stepMessage.contains(crash1)||stepMessage.contains(crash2)){
 
-        return true;
+            errors++;
+            if (stepStatus.contains("+")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isStartMessage() {
+        if (stepMessage.contains(equipmentMessage))
+            if (stepStatus.contains(startMessage))
+                return true;
+        return false;
+    }
+
+    private boolean isStopMessage() {
+        if (stepMessage.contains(equipmentMessage))
+            if (stepStatus.contains(stopMessage))
+                return true;
+        return false;
+    }
+
+    private void resetCounters() {
+        workTime = 0;
+        repairTime = 0;
+        crashCounter = 0;
     }
 
 }

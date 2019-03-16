@@ -1,18 +1,38 @@
 package sample;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class excelLine {
-int day;
-long Tw;
-int stay;
-long Tr;
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+
+    int day;
+    long Tw;
+    int stay;
+    long Tr;
+
+    public excelLine(int day, long tw, int stay, long tr, Date date) {
+        this.day = day;
+        Tw = tw;
+        this.stay = stay;
+        Tr = tr;
+        this.date = date;
+    }
+
+    Date date;
 
     @Override
     public String toString() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy");
         return "excelLine{" +
-                "day=" + day +
-                ", Tw(m)=" + Tw/1000/60 +
+                simpleDateFormat.format(date)+
+                ", Tw(m)=" + Tw / 1000 / 60 +
                 ", stay=" + stay +
-                ", Tr(m)=" + Tr/1000/60 +
+                ", Tr(m)=" + Tr / 1000 / 60 +
                 '}';
     }
 
