@@ -1,6 +1,8 @@
 package sample;
 
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,6 +19,9 @@ private static File file = new File("C:\\Users\\Gleb\\IdeaProjects\\nttLogAnalyz
     private static ArrayList crashList;
 
     public static void main(String[] args) throws ParseException {
+CreateExcelFile createExcelFile = new CreateExcelFile();
+
+
 
         if (file.isFile()) {
             ArrayList<Step> stepArrayList;
@@ -33,7 +38,18 @@ private static File file = new File("C:\\Users\\Gleb\\IdeaProjects\\nttLogAnalyz
                 System.out.println(el);
             }
 
+            try {
+                try {
+                    createExcelFile.create(stepAnalyze.getExcelLines());
+                } catch (InvalidFormatException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
+
 
     }
 

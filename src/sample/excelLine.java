@@ -29,7 +29,7 @@ public class excelLine {
     public String toString() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yy");
         return "excelLine{" +
-                simpleDateFormat.format(date)+
+                simpleDateFormat.format(date) +
                 ", Tw(m)=" + Tw / 1000 / 60 +
                 ", stay=" + stay +
                 ", Tr(m)=" + Tr / 1000 / 60 +
@@ -43,12 +43,15 @@ public class excelLine {
         Tr = tr;
     }
 
-    public excelLine(int day, long tw) {
 
-        this.day = day;
-        Tw = tw;
+    public int[] getArray() {
+        int array[] = new int[4];
+        array[0]=day;
+        array[1]=(int) Tw/1000/60;
+        array[2]=stay;
+        array[3]=(int) Tr/1000/60;
 
+return array;
     }
-
 
 }
